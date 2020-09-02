@@ -26,15 +26,29 @@ class User {
   }
 
   /** Creates a user and returns full user info: {username, avatar_url, member_since, bio} **/
-  static async create({ username, password, bio }) {
+  static async create({
+    username,
+    password,
+    bio,
+    avatar_url = "https://s3.amazonaws.com/37assets/svn/765-default-avatar.png",
+  }) {
     const result = await db.query(
       `INSERT INTO users
-            (username, password, bio)
-            VALUES ($1, $2, $3)
+            (username, password, bio, avatar_url)
+            VALUES ($1, $2, $3, $4)
             RETURNING username, avatar_url, member_since, bio`,
-      [username, password, bio]
+      [username, password, bio, avatar_url]
     );
     return result.rows[0];
+  }
+  static async fetchPassword({ username }) {
+    const result = await db.query(
+      `SELECT password FROM users
+        WHERE username = $1`,
+      [username]
+    );
+    const password = result.rows[0];
+    return password;
   }
 
   /** Returns user info: {username, avatar_url, member_since, bio}

@@ -1,11 +1,10 @@
 const PostDataAccess = require("../dataAccess/post");
 const UserDataAccess = require("../dataAccess/user");
 const VoteDataAccess = require("../dataAccess/vote");
-const TagDataAccess = require("../dataAccess/tag");
 const { BCRYPT_WORK_FACTOR } = require("../config");
 const bcrypt = require("bcrypt");
 const ExpressError = require("../helpers/expressError");
-const Vote = require("../dataAccess/vote");
+const Post = require("./post");
 
 class User {
   constructor({
@@ -14,46 +13,83 @@ class User {
     member_since,
     bio,
     authoredPosts = [],
-    likedPosts = [],
-    dislikedPosts = [],
+    likedPostIds = [],
+    dislikedPostIds = [],
   }) {
     this.username = username;
     this.avatar_url = avatar_url;
     this.member_since = member_since;
     this.bio = bio;
     this.authoredPosts = authoredPosts;
-    this.likedPosts = likedPosts;
-    this.dislikedPosts = dislikedPosts;
+    this.likedPostIds = likedPostIds;
+    this.dislikedPostIds = dislikedPostIds;
   }
 
   async remove() {
     await UserDataAccess.delete(this.username);
   }
-  async save() {
-    await TagDataAccess.update(this.username, {
+  async sync() {
+    await UserDataAccess.update(this.username, {
       avatar_url: this.avatar_url,
       bio: this.bio,
     });
   }
-  async upvote(post_id) {
-    return await this.vote(post_id, 1);
+  async upvote(post) {
+    const voteData = await this.vote(post, 1);
+    if (!this.likedPostIds.includes(post.id)) {
+      this.likedPostIds.push(post.id);
+      post.incrementNetVotes(1);
+    }
+    if (this.dislikedPostIds.includes(post.id)) {
+      this.dislikedPostIds = this.dislikedPostIds.filter(
+        (id) => id !== post.id
+      );
+      post.incrementNetVotes(1);
+    }
+    return voteData;
   }
-  async downvote(post_id) {
-    return await this.vote(post_id, -1);
+  async downvote(post) {
+    const voteData = await this.vote(post, -1);
+    if (!this.dislikedPostIds.includes(post.id)) {
+      this.dislikedPostIds.push(post.id);
+      post.incrementNetVotes(-1);
+    }
+    if (this.likedPostIds.includes(post.id)) {
+      this.likedPostIds = this.likedPostIds.filter((id) => id !== post.id);
+      post.incrementNetVotes(-1);
+    }
+    return voteData;
   }
-  async vote(post_id, value) {
-    const postExistence = await PostDataAccess.getOne(post_id);
-    if (!postExistence)
-      throw new ExpressError(`No post found with id ${post_id}`, 404);
-    let voteData = VoteDataAccess.update(post_id, this.username, value);
+  async vote(post, value) {
+    let voteData = await VoteDataAccess.update(post.id, this.username, value);
     if (!voteData) {
       voteData = await VoteDataAccess.create({
-        post_id,
+        post_id: post.id,
         username: this.username,
         value,
       });
     }
     return voteData;
+  }
+  async createPost({ title, body }) {
+    const post = await Post.create({ title, author: this.username, body });
+    this.authoredPosts.push(post);
+    await this.upvote(post);
+    return post;
+  }
+
+  static async create({ title, author, body }) {
+    const postData = await PostDataAccess.create({ title, author, body });
+    return new Post(postData);
+  }
+  static async authenticate({ username, password }) {
+    const user = await UserDataAccess.getOne(username);
+    if (!user) return false;
+    const hashedPassword = await UserDataAccess.fetchPassword(username);
+    if (await bcrypt.compare(password, hashedPassword)) {
+      return new User(user);
+    }
+    return false;
   }
 
   static async create({ username, password, bio = "" }) {
@@ -73,23 +109,25 @@ class User {
   }
   static async getById(username) {
     const userData = await UserDataAccess.getOne(username);
+
     if (!userData)
       throw new ExpressError(`No user found with username ${username}`, 404);
-    const postData = await PostDataAccess.getAll({ author: username });
+    const posts = await Post.getAll({ author: username });
     const voteData = await VoteDataAccess.getAll({ username });
-    postData.authoredPosts = postData;
-    postData.likedPosts = voteData
+    userData.authoredPosts = posts;
+    userData.likedPostIds = voteData
       .filter((vote) => vote.value === 1)
       .map((vote) => vote.post_id);
-    postData.dislikedPosts = voteData
+    userData.dislikedPostIds = voteData
       .filter((vote) => vote.value === -1)
       .map((vote) => vote.post_id);
+
     return new User(userData);
   }
-  //   static async getAll({ title }) {
-  //     const postsData = await PostDataAccess.getAll({ title });
-  //     return postsData.map((post) => new Post(post));
-  //   }
+  static async getAll({ username }) {
+    const usersData = await UserDataAccess.getAll({ username });
+    return usersData.map((user) => new User(user));
+  }
 }
 
 module.exports = User;

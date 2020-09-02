@@ -4,16 +4,16 @@ const sqlForPartialUpdate = require("../helpers/partialUpdate");
 
 /** The data access layer relating to post queries */
 class Post {
-  /** Returns list of basic post info:
+  /** Returns list of full post info:
    *
-   * [{id, title, author, timestamp}, ...]
+   * [{id, title, author, body, created_at}, ...]
    *
    * Optionally allows filtering by title
-   * Results are sorted by timestamp
+   * Results are sorted by created_at
    * */
   static async getAll({ title, author }) {
-    let baseQuery = `SELECT p.id, p.title, p.author, p.timestamp, SUM(v.value) as netVotes 
-                      FROM posts LEFT JOIN votes v ON v.post_id = p.id`;
+    let baseQuery = `SELECT p.id, p.title, p.author, p.body, p.created_at, SUM(v.value) as net_votes 
+                      FROM posts p LEFT JOIN votes v ON v.post_id = p.id`;
     const whereExpressions = [];
     const queryValues = [];
     if (title && title.length > 0) {
@@ -30,32 +30,32 @@ class Post {
     const finalQuery =
       baseQuery +
       whereExpressions.join(" AND ") +
-      " GROUP BY p.id ORDER BY timestamp";
+      " GROUP BY p.id ORDER BY created_at";
     const results = await db.query(finalQuery, queryValues);
     return results.rows;
   }
 
-  /** Creates a post and returns full post info: {id, title, author, body, timestamp} **/
+  /** Creates a post and returns full post info: {id, title, author, body, created_at} **/
   static async create({ title, author, body }) {
     const result = await db.query(
       `INSERT INTO posts
             (title, author, body)
             VALUES ($1, $2, $3)
-            RETURNING id, title, author, body, timestamp`,
+            RETURNING id, title, author, body, created_at`,
       [title, author, body]
     );
     return result.rows[0];
   }
-  /** Returns post info: {id, title, author, body, timestamp}
+  /** Returns post info: {id, title, author, body, created_at}
    *
    * If post cannot be found, raises a 404 error.
    *
    **/
   static async getOne(id) {
     const result = await db.query(
-      `SELECT p.id, p.title, p.author, p.body, p.timestamp, SUM(v.value) as netVotes
+      `SELECT p.id, p.title, p.author, p.body, p.created_at, SUM(v.value) as net_votes
         FROM posts p LEFT JOIN votes v ON v.post_id = p.id
-        WHERE p.id = $1`,
+        WHERE p.id = $1 GROUP BY p.id`,
       [id]
     );
     const post = result.rows[0];

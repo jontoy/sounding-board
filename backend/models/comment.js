@@ -13,7 +13,7 @@ class Comment {
   async remove() {
     await CommentDataAccess.delete(this.comment_id);
   }
-  async save() {
+  async sync() {
     await CommentDataAccess.update(this.comment_id, {
       text: this.text,
     });
