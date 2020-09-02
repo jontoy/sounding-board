@@ -9,7 +9,7 @@ class Tag {
    * Optionally allows filtering by name, post_id
    * */
   static async getAll({ name }) {
-    let baseQuery = `SELECT t.id, t.name, count(*) as totalPosts FROM tags t
+    let baseQuery = `SELECT t.id, t.name, count(pt.tag_id) as total_posts FROM tags t
                       LEFT JOIN posttags pt ON pt.tag_id = t.id`;
     const whereExpressions = [];
     const queryValues = [];
@@ -57,9 +57,10 @@ class Tag {
    **/
   static async getOne(id) {
     const result = await db.query(
-      `SELECT t.id, t.name, count(*) as totalPosts
+      `SELECT t.id, t.name, count(pt.tag_id) as total_posts
         FROM tags t LEFT JOIN posttags pt ON t.id = pt.tag_id
-        WHERE t.id = $1`,
+        WHERE t.id = $1 
+        GROUP BY t.id`,
       [id]
     );
     const tag = result.rows[0];
