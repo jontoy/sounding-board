@@ -63,16 +63,7 @@ class Vote {
     }
     return vote;
   }
-  static async getNetVotes(post_id) {
-    const result = await db.query(
-      `SELECT SUM(value) AS net_votes 
-            FROM votes
-            WHERE post_id = $1
-            GROUP BY post_id`,
-      [post_id]
-    );
-    return Number(result.rows[0].net_votes);
-  }
+
   /** Selectively updates vote from given data
    *
    * Returns all data about vote.

@@ -21,8 +21,9 @@ beforeEach(async function () {
 describe("user getAll()", function () {
   it("should return user data", async function () {
     const users = await User.getAll({});
-    expect(users[0].username).toEqual(testUser.username);
-    expect(users[0].avatar_url).toEqual(testUser.avatar_url);
+    expect(users.map((u) => u.username)).toEqual(
+      expect.arrayContaining([testUser.username])
+    );
   });
 });
 

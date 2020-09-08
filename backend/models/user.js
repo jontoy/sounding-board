@@ -97,7 +97,7 @@ class User {
     if (userExistence)
       throw new ExpressError(
         `User with username ${username} already exists`,
-        401
+        409
       );
     const hashedPassword = await bcrypt.hash(password, BCRYPT_WORK_FACTOR);
     const userData = await UserDataAccess.create({
@@ -109,7 +109,6 @@ class User {
   }
   static async getById(username) {
     const userData = await UserDataAccess.getOne(username);
-
     if (!userData)
       throw new ExpressError(`No user found with username ${username}`, 404);
     const posts = await Post.getAll({ author: username });

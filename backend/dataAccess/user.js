@@ -10,7 +10,7 @@ class User {
    * Optionally allows filtering by username
    * */
   static async getAll({ username }) {
-    let baseQuery = "SELECT username, avatar_url FROM users";
+    let baseQuery = "SELECT username, avatar_url, bio FROM users";
     const whereExpressions = [];
     const queryValues = [];
     if (username && username.length > 0) {
@@ -41,14 +41,14 @@ class User {
     );
     return result.rows[0];
   }
-  static async fetchPassword({ username }) {
+  static async fetchPassword(username) {
     const result = await db.query(
       `SELECT password FROM users
         WHERE username = $1`,
       [username]
     );
-    const password = result.rows[0];
-    return password;
+    const passwordData = result.rows[0];
+    return passwordData.password;
   }
 
   /** Returns user info: {username, avatar_url, member_since, bio}
@@ -82,14 +82,10 @@ class User {
       username
     );
     const result = await db.query(query, values);
-    const user = result.rows[0];
+    const { password, ...user } = result.rows[0];
     return user;
   }
-  /** Deletes user. Returns true.
-   *
-   * If user cannot be found, raises a 404 error.
-   *
-   **/
+  /** Deletes user. Returns true. **/
   static async delete(username) {
     const result = await db.query(
       `DELETE FROM users 

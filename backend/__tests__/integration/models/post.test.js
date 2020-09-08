@@ -22,7 +22,7 @@ beforeEach(async function () {
 describe("post getAll()", function () {
   it("should return post data", async function () {
     const posts = await Post.getAll({});
-    expect(posts).toEqual([testPost]);
+    expect(posts).toEqual(expect.arrayContaining([testPost]));
   });
 });
 

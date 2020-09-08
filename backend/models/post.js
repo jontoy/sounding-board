@@ -1,6 +1,5 @@
 const PostDataAccess = require("../dataAccess/post");
 const PostTagDataAccess = require("../dataAccess/postTag");
-const VoteDataAccess = require("../dataAccess/vote");
 const Tag = require("./tag");
 const Comment = require("./comment");
 
@@ -10,7 +9,7 @@ class Post {
     title,
     author,
     body,
-    timestamp,
+    created_at,
     net_votes = 0,
     comments = [],
     tags = [],
@@ -19,7 +18,7 @@ class Post {
     this.title = title;
     this.author = author;
     this.body = body;
-    this.timestamp = timestamp;
+    this.created_at = created_at;
     this.net_votes = Number(net_votes);
     this.comments = comments;
     this.tags = tags;
@@ -36,7 +35,6 @@ class Post {
       title: this.title,
       body: this.body,
     });
-    this.net_votes = await VoteDataAccess.getNetVotes(this.id);
   }
   async addTag(tag) {
     if (!this.tags.find((t) => t.id === tag.id)) {

@@ -1,11 +1,11 @@
-/** Express app for jobly. */
+/** Express app for the Sounding Board API. */
 
 const express = require("express");
 
 const ExpressError = require("./helpers/expressError");
 
 const morgan = require("morgan");
-
+const { authUser } = require("./middleware/auth");
 const app = express();
 
 app.use(express.json());
@@ -14,6 +14,17 @@ app.use(function (req, res, next) {
   next();
 });
 app.use(morgan("tiny"));
+app.use(authUser);
+
+const usersRoutes = require("./routes/users");
+const postsRoutes = require("./routes/posts");
+const tagRoutes = require("./routes/tags");
+const authRoutes = require("./routes/auth");
+
+app.use("/users", usersRoutes);
+app.use("/posts", postsRoutes);
+app.use("/tags", tagRoutes);
+app.use("/", authRoutes);
 
 app.get("/", (req, res, next) => {
   return res.json({ message: "Welcome to the Sounding Board API" });
