@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+  - 11
+services:
+  - postgresql
+
+before_script:
+  - cd backend
+  - npm install
+  - createdb sounding-board-test
+  - psql sounding-board-test < data.sql

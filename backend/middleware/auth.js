@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { SECRET } = require("../config");
+const ExpressError = require("../helpers/expressError");
 
 /** Authentication middleware. Checks for the presence of a token.
  * If present, verifies its authenticity and attaches username/admin
@@ -16,8 +17,7 @@ const authUser = (req, res, next) => {
     }
     return next();
   } catch (err) {
-    err.status = 401;
-    return next(err);
+    return next(new ExpressError(`${err.name}: ${err.message}`, 401));
   }
 };
 
@@ -30,10 +30,10 @@ const requireLogin = (req, res, next) => {
     if (req.username) {
       return next();
     } else {
-      return next({ status: 403, message: "User must be logged in" });
+      return next(new ExpressError("User must be logged in", 403));
     }
   } catch (err) {
-    return next(err);
+    return next(new ExpressError(`${err.name}: ${err.message}`, 400));
   }
 };
 /** Authorization middleware. Checks for the presence of curr_username on request.
@@ -45,7 +45,7 @@ const requireCorrectUser = (req, res, next) => {
     if (req.username && req.params.username === req.username) {
       return next();
     } else {
-      return next({ status: 403, message: "Unauthorized" });
+      return next(new ExpressError("Unauthorized", 403));
     }
   } catch (err) {
     return next(err);
@@ -61,10 +61,10 @@ const requireAdmin = (req, res, next) => {
     if (req.is_admin) {
       return next();
     } else {
-      return next({ status: 403, message: "Unauthorized" });
+      return next(new ExpressError("Unauthorized", 403));
     }
   } catch (err) {
-    return next(err);
+    return next(new ExpressError(`${err.name}: ${err.message}`, 400));
   }
 };
 

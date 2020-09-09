@@ -3,7 +3,6 @@ process.env.BCRYPT_WORK_FACTOR = 1;
 
 const db = require("../../../db");
 const User = require("../../../models/user");
-const Post = require("../../../models/post");
 
 let testUser;
 let testPost;

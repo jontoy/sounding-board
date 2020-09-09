@@ -3,7 +3,7 @@
 const express = require("express");
 
 const ExpressError = require("./helpers/expressError");
-
+const { VERBOSE_ERRORS } = require("./config");
 const morgan = require("morgan");
 const { authUser } = require("./middleware/auth");
 const app = express();
@@ -43,8 +43,9 @@ app.use(function (req, res, next) {
 
 app.use(function (err, req, res, next) {
   res.status(err.status || 500);
-  console.error(err.stack);
-
+  if (VERBOSE_ERRORS === "v") {
+    console.error(err.stack);
+  }
   return res.json({
     status: err.status,
     message: err.message,

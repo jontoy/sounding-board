@@ -192,7 +192,7 @@ router.post("/:postId/tags/:tagId", requireLogin, async function (
   try {
     const post = await Post.getById(req.params.postId);
     validateOwnership(post.author, req);
-    const tag = await Tag.getById(req.body.tagId);
+    const tag = await Tag.getById(req.params.tagId);
     await post.addTag(tag);
     return res.json({ message: `Tag ${tag.name} added to post ${post.id}` });
   } catch (err) {
@@ -209,7 +209,7 @@ router.delete("/:postId/tags/:tagId", requireLogin, async function (
   try {
     const post = await Post.getById(req.params.postId);
     validateOwnership(post.author, req);
-    const tag = await Tag.getById(req.body.tagId);
+    const tag = await Tag.getById(req.params.tagId);
     await post.removeTag(tag);
     return res.json({
       message: `Tag ${tag.name} removed from post ${post.id}`,
@@ -226,9 +226,9 @@ router.post("/:postId/upvote", requireLogin, async function (req, res, next) {
   try {
     const post = await Post.getById(req.params.postId);
     const user = await User.getById(req.username);
-    await user.upvote(post);
+    const vote = await user.upvote(post);
     return res.json({
-      message: `User ${user.username} has upvoted ${post.id}`,
+      message: `User ${vote.username} has upvoted post ${vote.post_id}`,
       post,
     });
   } catch (err) {
@@ -237,13 +237,13 @@ router.post("/:postId/upvote", requireLogin, async function (req, res, next) {
 });
 
 /** POST /[postId]/downvote  =>  {message: "User [user.username] has downvoted [postId]", post:post}  */
-router.post("/:postId/upvote", requireLogin, async function (req, res, next) {
+router.post("/:postId/downvote", requireLogin, async function (req, res, next) {
   try {
     const post = await Post.getById(req.params.postId);
     const user = await User.getById(req.username);
     const vote = await user.downvote(post);
     return res.json({
-      message: `User ${vote.username} has downvoted ${vote.post_id}`,
+      message: `User ${vote.username} has downvoted post ${vote.post_id}`,
       post,
     });
   } catch (err) {

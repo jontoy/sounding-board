@@ -31,9 +31,10 @@ class Tag {
   /** Returns list of basic tag info for specified post_id: */
   static async getAllByPostId(post_id) {
     const results = await db.query(
-      `SELECT t.id, t.name FROM tags t
+      `SELECT t.id, t.name, count(pt.tag_id) as total_posts FROM tags t
           LEFT JOIN posttags pt ON pt.tag_id = t.id
-          WHERE pt.post_id = $1`,
+          WHERE pt.post_id = $1
+          GROUP BY t.id`,
       [post_id]
     );
     return results.rows;

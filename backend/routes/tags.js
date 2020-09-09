@@ -16,7 +16,8 @@ const { tagSchema } = require("../schemas");
 
 router.get("/", async function (req, res, next) {
   try {
-    const tags = await Tag.getAll();
+    const { name } = req.query;
+    const tags = await Tag.getAll({ name });
     return res.json({ tags });
   } catch (err) {
     return next(err);
@@ -32,7 +33,7 @@ router.post("/", requireLogin, requireProperSchema(tagSchema), async function (
 ) {
   try {
     const tag = await Tag.create(req.body.name);
-    return res.json({ tag });
+    return res.status(201).json({ tag });
   } catch (err) {
     return next(err);
   }
