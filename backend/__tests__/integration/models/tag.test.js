@@ -3,7 +3,6 @@ process.env.BCRYPT_WORK_FACTOR = 1;
 
 const db = require("../../../db");
 const User = require("../../../models/user");
-const Post = require("../../../models/post");
 const Tag = require("../../../models/tag");
 
 let testUser;
@@ -21,7 +20,7 @@ beforeEach(async function () {
 describe("tag getAll()", function () {
   it("should return tag data", async function () {
     const tags = await Tag.getAll({});
-    expect(tags).toEqual([testTag]);
+    expect(tags).toEqual(expect.arrayContaining([testTag]));
   });
 });
 

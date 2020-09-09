@@ -2,12 +2,12 @@ const CommentDataAccess = require("../dataAccess/comment");
 const ExpressError = require("../helpers/expressError");
 
 class Comment {
-  constructor({ comment_id, post_id, text, author, timestamp }) {
+  constructor({ comment_id, post_id, text, author, created_at }) {
     this.comment_id = comment_id;
     this.post_id = post_id;
     this.text = text;
     this.author = author;
-    this.timestamp = timestamp;
+    this.created_at = created_at;
   }
 
   async remove() {

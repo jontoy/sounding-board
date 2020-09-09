@@ -1,0 +1,14 @@
+{
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "text": {
+      "$id": "/properties/text",
+      "type": "string",
+      "title": "The Text Schema ",
+      "examples": ["New Comment!"]
+    }
+  },
+  "required": ["text"]
+}

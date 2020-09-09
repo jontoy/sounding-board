@@ -1,0 +1,24 @@
+{
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "title": {
+      "$id": "/properties/title",
+      "type": "string",
+      "title": "The Title Schema ",
+      "default": "",
+      "minLength": 1,
+      "maxLength": 200,
+      "examples": ["fancyname23"]
+    },
+    "body": {
+      "$id": "/properties/body",
+      "type": "string",
+      "title": "The Body Schema ",
+      "default": "",
+      "examples": ["password123"]
+    }
+  },
+  "required": ["title"]
+}

@@ -3,7 +3,6 @@ process.env.BCRYPT_WORK_FACTOR = 1;
 
 const db = require("../../../db");
 const User = require("../../../models/user");
-const Post = require("../../../models/post");
 
 let testUser;
 let testPost;
@@ -21,8 +20,9 @@ beforeEach(async function () {
 describe("user getAll()", function () {
   it("should return user data", async function () {
     const users = await User.getAll({});
-    expect(users[0].username).toEqual(testUser.username);
-    expect(users[0].avatar_url).toEqual(testUser.avatar_url);
+    expect(users.map((u) => u.username)).toEqual(
+      expect.arrayContaining([testUser.username])
+    );
   });
 });
 

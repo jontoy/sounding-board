@@ -1,8 +1,5 @@
-const PostDataAccess = require("../dataAccess/post");
-const CommentDataAccess = require("../dataAccess/comment");
 const TagDataAccess = require("../dataAccess/tag");
 const ExpressError = require("../helpers/expressError");
-const PostTagDataAccess = require("../dataAccess/postTag");
 
 class Tag {
   constructor({ id, name, total_posts = 0 }) {

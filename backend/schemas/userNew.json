@@ -1,0 +1,35 @@
+{
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "username": {
+      "$id": "/properties/username",
+      "type": "string",
+      "title": "The Username Schema ",
+      "default": "",
+      "minLength": 1,
+      "maxLength": 55,
+      "examples": ["fancyname23"]
+    },
+    "password": {
+      "$id": "/properties/password",
+      "type": "string",
+      "title": "The Password Schema ",
+      "default": "",
+      "minLength": 5,
+      "maxLength": 55,
+      "examples": ["password123"]
+    },
+    "bio": {
+      "$id": "/properties/bio",
+      "type": "string",
+      "title": "The Bio Schema ",
+      "default": "",
+      "examples": [
+        "A serial entrepreneur with an interest in blockchain and fitness"
+      ]
+    }
+  },
+  "required": ["username", "password"]
+}
