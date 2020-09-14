@@ -6,7 +6,7 @@ const request = require("supertest");
 const db = require("../../../db");
 const jwt = require("jsonwebtoken");
 const createToken = require("../../../helpers/createToken");
-const User = require("../../../models/user");
+const DetailedUser = require("../../../models/detailedUser");
 
 let testUser;
 let testUserX;
@@ -14,10 +14,16 @@ let testPost;
 let token;
 let badToken = jwt.sign({ username: "routeU1" }, "invalid-key");
 beforeAll(async function () {
-  testUserX = await User.create({ username: "routeUX", password: "passwordX" });
+  testUserX = await DetailedUser.create({
+    username: "routeUX",
+    password: "passwordX",
+  });
 });
 beforeEach(async function () {
-  testUser = await User.create({ username: "routeU1", password: "password1" });
+  testUser = await DetailedUser.create({
+    username: "routeU1",
+    password: "password1",
+  });
   token = createToken(testUser);
   testPost = await testUser.createPost({ title: "tu1", body: "bu1" });
 });
@@ -30,8 +36,14 @@ describe("GET /users", function () {
   let testUser2;
   let testUser3;
   beforeAll(async function () {
-    testUser2 = await User.create({ username: "routeU2", password: "p2" });
-    testUser3 = await User.create({ username: "routeU3", password: "p3" });
+    testUser2 = await DetailedUser.create({
+      username: "routeU2",
+      password: "p2",
+    });
+    testUser3 = await DetailedUser.create({
+      username: "routeU3",
+      password: "p3",
+    });
   });
   afterAll(async function () {
     await testUser2.remove();
@@ -40,12 +52,17 @@ describe("GET /users", function () {
   it("should return list of all users when given no parameters", async function () {
     const response = await request(app).get("/users").send({ _token: token });
     expect(response.statusCode).toEqual(200);
-    expect(response.body.users.map((u) => u.username)).toEqual(
-      expect.arrayContaining([
-        testUser.username,
-        testUser2.username,
-        testUser3.username,
-      ])
+    expect(response.body.users).toEqual(
+      expect.arrayContaining(
+        [testUser, testUser2, testUser3].map(
+          ({ username, avatarUrl, bio, memberSince }) => ({
+            username,
+            avatarUrl,
+            bio,
+            memberSince: expect.any(String),
+          })
+        )
+      )
     );
   });
   it("should appropriately filter by username", async function () {
@@ -75,10 +92,19 @@ describe("GET /users/:username", function () {
     expect(response.statusCode).toEqual(200);
     expect(response.body.user).toEqual({
       username: testUser.username,
-      avatar_url: expect.any(String),
+      avatarUrl: expect.any(String),
       bio: "",
-      member_since: expect.any(String),
-      authoredPosts: [{ ...testPost, created_at: expect.any(String) }],
+      memberSince: expect.any(String),
+      authoredPosts: [
+        {
+          author: testPost.author,
+          body: testPost.body,
+          id: testPost.id,
+          netVotes: testPost.netVotes,
+          title: testPost.title,
+          createdAt: expect.any(String),
+        },
+      ],
       likedPostIds: [testPost.id],
       dislikedPostIds: [],
     });
@@ -125,9 +151,9 @@ describe("POST /register", function () {
     expect(response.statusCode).toEqual(200);
     expect(response.body.user).toEqual({
       username: newUser.username,
-      avatar_url: expect.any(String),
+      avatarUrl: expect.any(String),
       bio: newUser.bio,
-      member_since: expect.any(String),
+      memberSince: expect.any(String),
       authoredPosts: [],
       likedPostIds: [],
       dislikedPostIds: [],
@@ -177,7 +203,7 @@ describe("PATCH /users/:username", function () {
   it("should modify an existing user", async function () {
     const updatedUserInfo = {
       bio: "updated bio",
-      avatar_url: "www.fakeurl.com",
+      avatarUrl: "www.fakeurl.com",
     };
 
     let response = await request(app)
@@ -186,10 +212,19 @@ describe("PATCH /users/:username", function () {
     expect(response.statusCode).toEqual(200);
     expect(response.body.user).toEqual({
       username: testUser.username,
-      avatar_url: "www.fakeurl.com",
+      avatarUrl: "www.fakeurl.com",
       bio: "updated bio",
-      member_since: expect.any(String),
-      authoredPosts: [{ ...testPost, created_at: expect.any(String) }],
+      memberSince: expect.any(String),
+      authoredPosts: [
+        {
+          author: testPost.author,
+          body: testPost.body,
+          id: testPost.id,
+          netVotes: testPost.netVotes,
+          title: testPost.title,
+          createdAt: expect.any(String),
+        },
+      ],
       likedPostIds: [testPost.id],
       dislikedPostIds: [],
     });
@@ -199,10 +234,19 @@ describe("PATCH /users/:username", function () {
     expect(response.statusCode).toEqual(200);
     expect(response.body.user).toEqual({
       username: testUser.username,
-      avatar_url: "www.fakeurl.com",
+      avatarUrl: "www.fakeurl.com",
       bio: "updated bio",
-      member_since: expect.any(String),
-      authoredPosts: [{ ...testPost, created_at: expect.any(String) }],
+      memberSince: expect.any(String),
+      authoredPosts: [
+        {
+          author: testPost.author,
+          body: testPost.body,
+          id: testPost.id,
+          netVotes: testPost.netVotes,
+          title: testPost.title,
+          createdAt: expect.any(String),
+        },
+      ],
       likedPostIds: [testPost.id],
       dislikedPostIds: [],
     });
@@ -210,7 +254,7 @@ describe("PATCH /users/:username", function () {
   it("should deny access if no token is present", async function () {
     const updatedUserInfo = {
       bio: "updated bio",
-      avatar_url: "www.fakeurl.com",
+      avatarUrl: "www.fakeurl.com",
     };
     let response = await request(app)
       .patch(`/users/${testUser.username}`)
@@ -220,7 +264,7 @@ describe("PATCH /users/:username", function () {
   it("should deny access if malformed token is present", async function () {
     const updatedUserInfo = {
       bio: "updated bio",
-      avatar_url: "www.fakeurl.com",
+      avatarUrl: "www.fakeurl.com",
     };
     let response = await request(app)
       .patch(`/users/${testUser.username}`)
@@ -230,7 +274,7 @@ describe("PATCH /users/:username", function () {
   it("should deny access if incorrect user", async function () {
     const updatedUserInfo = {
       bio: "updated bio",
-      avatar_url: "www.fakeurl.com",
+      avatarUrl: "www.fakeurl.com",
     };
     let response = await request(app)
       .patch(`/users/routeUX`)

@@ -10,7 +10,7 @@ class User {
    * Optionally allows filtering by username
    * */
   static async getAll({ username }) {
-    let baseQuery = "SELECT username, avatar_url, bio FROM users";
+    let baseQuery = "SELECT username, avatar_url, bio, member_since FROM users";
     const whereExpressions = [];
     const queryValues = [];
     if (username && username.length > 0) {
@@ -22,7 +22,12 @@ class User {
     }
     const finalQuery = baseQuery + whereExpressions.join(" AND ");
     const results = await db.query(finalQuery, queryValues);
-    return results.rows;
+    return results.rows.map(({ username, avatar_url, member_since, bio }) => ({
+      username,
+      avatarUrl: avatar_url,
+      memberSince: member_since,
+      bio,
+    }));
   }
 
   /** Creates a user and returns full user info: {username, avatar_url, member_since, bio} **/
@@ -39,7 +44,9 @@ class User {
             RETURNING username, avatar_url, member_since, bio`,
       [username, password, bio, avatar_url]
     );
-    return result.rows[0];
+    const user = result.rows[0];
+    User.deserialize(user);
+    return user;
   }
   static async fetchPassword(username) {
     const result = await db.query(
@@ -64,6 +71,9 @@ class User {
       [username]
     );
     const user = result.rows[0];
+    if (user) {
+      User.deserialize(user);
+    }
     return user;
   }
 
@@ -83,6 +93,9 @@ class User {
     );
     const result = await db.query(query, values);
     const { password, ...user } = result.rows[0];
+    if (user) {
+      User.deserialize(user);
+    }
     return user;
   }
   /** Deletes user. Returns true. **/
@@ -94,6 +107,12 @@ class User {
       [username]
     );
     return !!result.rows[0];
+  }
+  static deserialize(user) {
+    user.avatarUrl = user.avatar_url;
+    user.memberSince = user.member_since;
+    delete user.avatar_url;
+    delete user.member_since;
   }
 }
 

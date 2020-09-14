@@ -2,8 +2,7 @@ process.env.DATABASE_URL = "sounding-board-test";
 process.env.BCRYPT_WORK_FACTOR = 1;
 
 const db = require("../../../db");
-const User = require("../../../models/user");
-const Post = require("../../../models/post");
+const DetailedUser = require("../../../models/detailedUser");
 const Comment = require("../../../models/comment");
 
 let testUser1;
@@ -12,17 +11,16 @@ let testPost;
 let testComment;
 
 beforeAll(async function () {
-  testUser1 = await User.create({
+  testUser1 = await DetailedUser.create({
     username: "testuserc1",
     password: "password",
   });
-  testUser2 = await User.create({
+  testUser2 = await DetailedUser.create({
     username: "testuserc2",
     password: "password",
   });
-  testPost = await Post.create({
+  testPost = await testUser1.createPost({
     title: "t1",
-    author: testUser1.username,
     body: "b1",
   });
 });
@@ -32,14 +30,14 @@ beforeEach(async function () {
 });
 describe("comment getAll()", function () {
   it("should return comments data", async function () {
-    const comments = await Comment.getAll({ post_id: testPost.id });
+    const comments = await Comment.getAll({ postId: testPost.id });
     expect(comments).toEqual([testComment]);
   });
 });
 
 describe("comment getOne()", function () {
   it("should return comment data", async function () {
-    const comment = await Comment.getById(testComment.comment_id);
+    const comment = await Comment.getById(testComment.commentId);
     expect(comment).toEqual(testComment);
   });
 });
@@ -48,7 +46,7 @@ describe("comment sync()", function () {
   it("allow updates to comment text", async function () {
     testComment.text = "second";
     await testComment.sync();
-    const comment = await Comment.getById(testComment.comment_id);
+    const comment = await Comment.getById(testComment.commentId);
     expect(comment).toEqual(testComment);
   });
 });
@@ -58,7 +56,6 @@ afterEach(async function () {
 });
 
 afterAll(async function () {
-  await testPost.remove();
   await testUser1.remove();
   await testUser2.remove();
   db.end();

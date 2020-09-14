@@ -6,6 +6,7 @@ const router = express.Router();
 const { requireCorrectUser, requireLogin } = require("../middleware/auth");
 
 const User = require("../models/user");
+const DetailedUser = require("../models/detailedUser");
 
 const { userUpdateSchema } = require("../schemas");
 
@@ -30,7 +31,7 @@ router.get("/", requireLogin, async function (req, res, next) {
 
 router.get("/:username", requireLogin, async function (req, res, next) {
   try {
-    const user = await User.getById(req.params.username);
+    const user = await DetailedUser.getById(req.params.username);
     return res.json({ user });
   } catch (err) {
     return next(err);
@@ -45,8 +46,8 @@ router.patch(
   requireProperSchema(userUpdateSchema),
   async function (req, res, next) {
     try {
-      const user = await User.getById(req.params.username);
-      user.avatar_url = req.body.avatar_url || user.avatar_url;
+      const user = await DetailedUser.getById(req.params.username);
+      user.avatarUrl = req.body.avatarUrl || user.avatarUrl;
       user.bio = req.body.bio || user.bio;
       await user.sync();
       return res.json({ user });
@@ -64,7 +65,7 @@ router.delete("/:username", requireCorrectUser, async function (
   next
 ) {
   try {
-    const user = await User.getById(req.params.username);
+    const user = await DetailedUser.getById(req.params.username);
     await user.remove();
     return res.json({ message: `User ${user.username} deleted.` });
   } catch (err) {

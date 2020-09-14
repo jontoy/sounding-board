@@ -3,7 +3,7 @@
 const express = require("express");
 const router = express.Router();
 
-const User = require("../models/user");
+const DetailedUser = require("../models/detailedUser");
 const { validate } = require("jsonschema");
 
 const { userNewSchema } = require("../schemas");
@@ -25,7 +25,7 @@ router.post("/register", async function (req, res, next) {
       });
     }
 
-    const newUser = await User.create(req.body);
+    const newUser = await DetailedUser.create(req.body);
     const token = createToken(newUser);
     return res.status(201).json({ token });
   } catch (e) {
@@ -36,7 +36,7 @@ router.post("/register", async function (req, res, next) {
 router.post("/login", async function (req, res, next) {
   try {
     const { username, password } = req.body;
-    const user = await User.authenticate({ username, password });
+    const user = await DetailedUser.authenticate({ username, password });
     if (!user) throw new ExpressError("Invalid login credentials", 401);
     const token = createToken(user);
     return res.status(200).json({ token });

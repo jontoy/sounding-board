@@ -10,13 +10,13 @@ class Comment {
    * Allows filtering by post_id, author
    *
    * */
-  static async getAll({ post_id, author }) {
+  static async getAll({ postId, author }) {
     let baseQuery =
       "SELECT comment_id, post_id, text, author, created_at FROM comments";
     const whereExpressions = [];
     const queryValues = [];
-    if (post_id && post_id.length > 0) {
-      queryValues.push(post_id);
+    if (postId && postId.length > 0) {
+      queryValues.push(postId);
       whereExpressions.push(`post_id = $${queryValues.length}`);
     }
     if (author && author.length > 0) {
@@ -29,34 +29,47 @@ class Comment {
     const finalQuery =
       baseQuery + whereExpressions.join(" AND ") + " ORDER BY created_at";
     const results = await db.query(finalQuery, queryValues);
-    return results.rows;
+    return results.rows.map(
+      ({ comment_id, post_id, text, author, created_at }) => ({
+        commentId: comment_id,
+        postId: post_id,
+        text,
+        author,
+        createdAt: created_at,
+      })
+    );
   }
 
   /** Creates a comment and returns full comment info:
    * {comment_id, post_id, text, author, created_at} **/
-  static async create({ post_id, text, author }) {
+  static async create({ postId, text, author }) {
     const result = await db.query(
       `INSERT INTO comments
             (post_id, text, author)
             VALUES ($1, $2, $3)
             RETURNING comment_id, post_id, text, author, created_at`,
-      [post_id, text, author]
+      [postId, text, author]
     );
-    return result.rows[0];
+    const comment = result.rows[0];
+    Comment.deserialize(comment);
+    return comment;
   }
   /** Returns comment info: {comment_id, post_id, text, author, created_at}
    *
    * If comment cannot be found, raises a 404 error.
    *
    **/
-  static async getOne(comment_id) {
+  static async getOne(commentId) {
     const result = await db.query(
       `SELECT comment_id, post_id, text, author, created_at 
         FROM comments
         WHERE comment_id = $1`,
-      [comment_id]
+      [commentId]
     );
     const comment = result.rows[0];
+    if (comment) {
+      Comment.deserialize(comment);
+    }
     return comment;
   }
 
@@ -67,15 +80,18 @@ class Comment {
    * If comment cannot be found, raises a 404 error.
    *
    **/
-  static async update(comment_id, data) {
+  static async update(commentId, data) {
     let { query, values } = sqlForPartialUpdate(
       "comments",
       data,
       "comment_id",
-      comment_id
+      commentId
     );
     const result = await db.query(query, values);
     const comment = result.rows[0];
+    if (comment) {
+      Comment.deserialize(comment);
+    }
     return comment;
   }
   /** Deletes comment. Returns true.
@@ -83,14 +99,23 @@ class Comment {
    * If comment cannot be found, raises a 404 error.
    *
    **/
-  static async delete(comment_id) {
+  static async delete(commentId) {
     const result = await db.query(
       `DELETE FROM comments 
         WHERE comment_id = $1
         RETURNING comment_id`,
-      [comment_id]
+      [commentId]
     );
     return !!result.rows[0];
+  }
+
+  static deserialize(comment) {
+    comment.commentId = comment.comment_id;
+    comment.postId = comment.post_id;
+    comment.createdAt = comment.created_at;
+    delete comment.comment_id;
+    delete comment.post_id;
+    delete comment.created_at;
   }
 }
 

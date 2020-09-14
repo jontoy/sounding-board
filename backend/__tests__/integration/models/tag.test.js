@@ -2,7 +2,7 @@ process.env.DATABASE_URL = "sounding-board-test";
 process.env.BCRYPT_WORK_FACTOR = 1;
 
 const db = require("../../../db");
-const User = require("../../../models/user");
+const DetailedUser = require("../../../models/detailedUser");
 const Tag = require("../../../models/tag");
 
 let testUser;
@@ -10,7 +10,7 @@ let testPost;
 let testTag;
 
 beforeEach(async function () {
-  testUser = await User.create({
+  testUser = await DetailedUser.create({
     username: "testusert1",
     password: "password",
   });
@@ -41,9 +41,8 @@ describe("tag sync()", function () {
 });
 
 afterEach(async function () {
-  await testTag.remove();
-  await testPost.remove();
   await testUser.remove();
+  await testTag.remove();
 });
 
 afterAll(function () {

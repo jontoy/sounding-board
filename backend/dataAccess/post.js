@@ -32,7 +32,16 @@ class Post {
       whereExpressions.join(" AND ") +
       " GROUP BY p.id ORDER BY created_at";
     const results = await db.query(finalQuery, queryValues);
-    return results.rows;
+    return results.rows.map(
+      ({ id, title, author, body, created_at, net_votes }) => ({
+        id,
+        title,
+        author,
+        body,
+        createdAt: created_at,
+        netVotes: net_votes,
+      })
+    );
   }
 
   /** Creates a post and returns full post info: {id, title, author, body, created_at} **/
@@ -44,7 +53,9 @@ class Post {
             RETURNING id, title, author, body, created_at`,
       [title, author, body]
     );
-    return result.rows[0];
+    const post = result.rows[0];
+    Post.deserialize(post);
+    return post;
   }
   /** Returns post info: {id, title, author, body, created_at}
    *
@@ -62,6 +73,7 @@ class Post {
     if (!post) {
       throw new ExpressError(`No post found with id ${id}`, 404);
     }
+    Post.deserialize(post);
     return post;
   }
 
@@ -79,6 +91,7 @@ class Post {
     if (!post) {
       throw new ExpressError(`No post found with id ${id}`, 404);
     }
+    Post.deserialize(post);
     return post;
   }
   /** Deletes post. Returns true.
@@ -97,6 +110,14 @@ class Post {
       throw new ExpressError(`No post found with id ${id}`, 404);
     }
     return true;
+  }
+  static deserialize(post) {
+    post.createdAt = post.created_at;
+    delete post.created_at;
+    if (post.net_votes) {
+      post.netVotes = post.net_votes;
+      delete post.net_votes;
+    }
   }
 }
 

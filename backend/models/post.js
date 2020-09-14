@@ -1,70 +1,23 @@
 const PostDataAccess = require("../dataAccess/post");
-const PostTagDataAccess = require("../dataAccess/postTag");
-const Tag = require("./tag");
-const Comment = require("./comment");
 
 class Post {
-  constructor({
-    id,
-    title,
-    author,
-    body,
-    created_at,
-    net_votes = 0,
-    comments = [],
-    tags = [],
-  }) {
+  constructor({ id, title, body, author, createdAt, netVotes = 0 }) {
     this.id = id;
     this.title = title;
-    this.author = author;
     this.body = body;
-    this.created_at = created_at;
-    this.net_votes = Number(net_votes);
-    this.comments = comments;
-    this.tags = tags;
+    this.author = author;
+    this.createdAt = createdAt;
+    this.netVotes = netVotes ? parseInt(netVotes) : 0;
   }
   incrementNetVotes(delta) {
-    this.net_votes += delta;
+    this.netVotes += delta;
   }
 
   async remove() {
     await PostDataAccess.delete(this.id);
   }
-  async sync() {
-    await PostDataAccess.update(this.id, {
-      title: this.title,
-      body: this.body,
-    });
-  }
-  async addTag(tag) {
-    if (!this.tags.find((t) => t.id === tag.id)) {
-      await PostTagDataAccess.create({
-        post_id: this.id,
-        tag_id: tag.id,
-      });
-      this.tags.push(tag);
-      tag.incrementTotalPosts(1);
-    }
-  }
-  async removeTag(tag) {
-    if (this.tags.find((t) => t.id === tag.id)) {
-      await PostTagDataAccess.delete(this.id, tag.id);
-      this.tags = this.tags.filter((t) => t.id !== tag.id);
-      tag.incrementTotalPosts(-1);
-    }
-  }
-
   static async create({ title, author, body }) {
     const postData = await PostDataAccess.create({ title, author, body });
-    return new Post(postData);
-  }
-  static async getById(id) {
-    const postData = await PostDataAccess.getOne(id);
-    if (!postData) throw new ExpressError(`No post found with id ${id}`, 404);
-    const comments = await Comment.getAll({ post_id: id });
-    const tags = await Tag.getAllByPostId(id);
-    postData.comments = comments;
-    postData.tags = tags;
     return new Post(postData);
   }
   static async getAll({ title, author }) {

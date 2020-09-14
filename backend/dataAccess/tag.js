@@ -25,7 +25,11 @@ class Tag {
       whereExpressions.join(" AND ") +
       " GROUP BY t.id ORDER BY name";
     const results = await db.query(finalQuery, queryValues);
-    return results.rows;
+    return results.rows.map(({ id, name, total_posts }) => ({
+      id,
+      name,
+      totalPosts: total_posts,
+    }));
   }
 
   /** Returns list of basic tag info for specified post_id: */
@@ -37,7 +41,11 @@ class Tag {
           GROUP BY t.id`,
       [post_id]
     );
-    return results.rows;
+    return results.rows.map(({ id, name, total_posts }) => ({
+      id,
+      name,
+      totalPosts: total_posts,
+    }));
   }
 
   /** Creates a tag and returns full tag info: {id, name} **/
@@ -49,7 +57,8 @@ class Tag {
             RETURNING id, name`,
       [name]
     );
-    return result.rows[0];
+    const tag = result.rows[0];
+    return tag;
   }
   /** Returns tag info: {id, name}
    *
@@ -65,6 +74,9 @@ class Tag {
       [id]
     );
     const tag = result.rows[0];
+    if (tag) {
+      Tag.deserialize(tag);
+    }
     return tag;
   }
 
@@ -98,6 +110,10 @@ class Tag {
       [id]
     );
     return true;
+  }
+  static deserialize(tag) {
+    tag.totalPosts = tag.total_posts;
+    delete tag.total_posts;
   }
 }
 

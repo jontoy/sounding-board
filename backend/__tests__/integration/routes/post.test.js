@@ -56,11 +56,18 @@ describe("GET /posts", function () {
       `/posts?author=${testUserY.username}`
     );
     expect(response.statusCode).toEqual(200);
-    expect(response.body.posts).toEqual([
-      { ...testPostY, created_at: expect.any(String) },
-      { ...testPost2, created_at: expect.any(String) },
-      { ...testPost3, created_at: expect.any(String) },
-    ]);
+    expect(response.body.posts).toEqual(
+      [testPostY, testPost2, testPost3].map(
+        ({ author, body, createdAt, id, netVotes, title }) => ({
+          author,
+          body,
+          createdAt: expect.any(String),
+          id,
+          netVotes: 1,
+          title,
+        })
+      )
+    );
   });
 });
 
@@ -70,7 +77,8 @@ describe("GET /posts/:postId", function () {
     expect(response.statusCode).toEqual(200);
     expect(response.body.post).toEqual({
       ...testPost,
-      created_at: expect.any(String),
+      createdAt: expect.any(String),
+      netVotes: 1,
     });
   });
   it("should return a 404 if given an invalid id", async function () {
@@ -96,10 +104,10 @@ describe("POST /posts", function () {
       ...newPost,
 
       id: expect.any(String),
-      created_at: expect.any(String),
+      createdAt: expect.any(String),
       author: testUser.username,
       comments: [],
-      net_votes: 1,
+      netVotes: 1,
       tags: [],
     });
     const postId = response.body.post.id;
@@ -108,10 +116,10 @@ describe("POST /posts", function () {
     expect(response.body.post).toEqual({
       ...newPost,
       id: postId,
-      created_at: expect.any(String),
+      createdAt: expect.any(String),
       author: testUser.username,
       comments: [],
-      net_votes: 1,
+      netVotes: 1,
       tags: [],
     });
     await request(app).delete(`/posts/${postId}`).send({ _token: token });
@@ -128,11 +136,11 @@ describe("POST /posts/:postId/downvote", function () {
       `User ${testUser.username} has downvoted post ${testPost.id}`
     );
     expect(response.body.post.id).toEqual(testPost.id);
-    expect(response.body.post.net_votes).toEqual(-1);
+    expect(response.body.post.netVotes).toEqual(-1);
 
     response = await request(app).get(`/posts/${testPost.id}`);
     expect(response.statusCode).toEqual(200);
-    expect(response.body.post.net_votes).toEqual(-1);
+    expect(response.body.post.netVotes).toEqual(-1);
   });
   it("should should deny access if no token is present", async function () {
     let response = await request(app).post(`/posts/${testPostY.id}/downvote`);
@@ -162,11 +170,11 @@ describe("POST /posts/:postId/upvote", function () {
       `User ${testUser.username} has upvoted post ${testPostY.id}`
     );
     expect(response.body.post.id).toEqual(testPostY.id);
-    expect(response.body.post.net_votes).toEqual(2);
+    expect(response.body.post.netVotes).toEqual(2);
 
     response = await request(app).get(`/posts/${testPostY.id}`);
     expect(response.statusCode).toEqual(200);
-    expect(response.body.post.net_votes).toEqual(2);
+    expect(response.body.post.netVotes).toEqual(2);
   });
   it("should should deny access if no token is present", async function () {
     let response = await request(app).post(`/posts/${testPostY.id}/upvote`);
@@ -201,10 +209,10 @@ describe("PATCH /posts/:postId", function () {
       ...updatedPostInfo,
 
       id: expect.any(String),
-      created_at: expect.any(String),
+      createdAt: expect.any(String),
       author: testUser.username,
       comments: [],
-      net_votes: 1,
+      netVotes: 1,
       tags: [],
     });
     response = await request(app)
@@ -215,10 +223,10 @@ describe("PATCH /posts/:postId", function () {
       ...updatedPostInfo,
 
       id: expect.any(String),
-      created_at: expect.any(String),
+      createdAt: expect.any(String),
       author: testUser.username,
       comments: [],
-      net_votes: 1,
+      netVotes: 1,
       tags: [],
     });
   });
