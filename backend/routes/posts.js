@@ -5,8 +5,9 @@ const router = express.Router();
 
 const { requireLogin } = require("../middleware/auth");
 
-const User = require("../models/user");
+const DetailedUser = require("../models/detailedUser");
 const Post = require("../models/post");
+const DetailedPost = require("../models/detailedPost");
 const Comment = require("../models/comment");
 const Tag = require("../models/tag");
 
@@ -45,7 +46,7 @@ router.post(
   requireProperSchema(postNewSchema),
   async function (req, res, next) {
     try {
-      const user = await User.getById(req.username);
+      const user = await DetailedUser.getById(req.username);
       const post = await user.createPost(req.body);
       return res.status(201).json({ post });
     } catch (e) {
@@ -58,7 +59,7 @@ router.post(
 
 router.get("/:postId", async function (req, res, next) {
   try {
-    const post = await Post.getById(req.params.postId);
+    const post = await DetailedPost.getById(req.params.postId);
     return res.json({ post });
   } catch (err) {
     return next(err);
@@ -73,7 +74,7 @@ router.patch(
   requireProperSchema(postUpdateSchema),
   async function (req, res, next) {
     try {
-      const post = await Post.getById(req.params.postId);
+      const post = await DetailedPost.getById(req.params.postId);
       validateOwnership(post.author, req);
       post.title = req.body.title || post.title;
       post.body = req.body.body || post.body;
@@ -89,7 +90,7 @@ router.patch(
 
 router.delete("/:postId", requireLogin, async function (req, res, next) {
   try {
-    const post = await Post.getById(req.params.postId);
+    const post = await DetailedPost.getById(req.params.postId);
     validateOwnership(post.author, req);
     await post.remove();
     return res.json({ message: `Post ${post.id} deleted.` });
@@ -104,8 +105,8 @@ router.delete("/:postId", requireLogin, async function (req, res, next) {
 
 router.get("/:postId/comments", async function (req, res, next) {
   try {
-    const post = await Post.getById(req.params.postId);
-    const comments = await Comment.getAll({ post_id: post.id });
+    const post = await DetailedPost.getById(req.params.postId);
+    const comments = await Comment.getAll({ postId: post.id });
     return res.json({ comments });
   } catch (err) {
     return next(err);
@@ -120,8 +121,8 @@ router.post(
   requireProperSchema(commentSchema),
   async function (req, res, next) {
     try {
-      const user = await User.getById(req.username);
-      const post = await Post.getById(req.params.postId);
+      const user = await DetailedUser.getById(req.username);
+      const post = await DetailedPost.getById(req.params.postId);
       const comment = await Comment.create(
         post.id,
         req.body.text,
@@ -175,7 +176,7 @@ router.delete("/:postId/comments/:commentId", requireLogin, async function (
     const comment = await Comment.getById(req.params.commentId);
     validateOwnership(comment.author, req);
     await comment.remove();
-    return res.json({ message: `Comment ${comment.comment_id} deleted.` });
+    return res.json({ message: `Comment ${comment.commentId} deleted.` });
   } catch (err) {
     return next(err);
   }
@@ -190,7 +191,7 @@ router.post("/:postId/tags/:tagId", requireLogin, async function (
   next
 ) {
   try {
-    const post = await Post.getById(req.params.postId);
+    const post = await DetailedPost.getById(req.params.postId);
     validateOwnership(post.author, req);
     const tag = await Tag.getById(req.params.tagId);
     await post.addTag(tag);
@@ -207,7 +208,7 @@ router.delete("/:postId/tags/:tagId", requireLogin, async function (
   next
 ) {
   try {
-    const post = await Post.getById(req.params.postId);
+    const post = await DetailedPost.getById(req.params.postId);
     validateOwnership(post.author, req);
     const tag = await Tag.getById(req.params.tagId);
     await post.removeTag(tag);
@@ -224,11 +225,11 @@ router.delete("/:postId/tags/:tagId", requireLogin, async function (
 /** POST /[postId]/upvote  =>  {message: "User [user.username] has upvoted [postId]", post:post}  */
 router.post("/:postId/upvote", requireLogin, async function (req, res, next) {
   try {
-    const post = await Post.getById(req.params.postId);
-    const user = await User.getById(req.username);
-    const vote = await user.upvote(post);
+    const post = await DetailedPost.getById(req.params.postId);
+    const user = await DetailedUser.getById(req.username);
+    await user.upvote(post);
     return res.json({
-      message: `User ${vote.username} has upvoted post ${vote.post_id}`,
+      message: `User ${user.username} has upvoted post ${post.id}`,
       post,
     });
   } catch (err) {
@@ -239,11 +240,11 @@ router.post("/:postId/upvote", requireLogin, async function (req, res, next) {
 /** POST /[postId]/downvote  =>  {message: "User [user.username] has downvoted [postId]", post:post}  */
 router.post("/:postId/downvote", requireLogin, async function (req, res, next) {
   try {
-    const post = await Post.getById(req.params.postId);
-    const user = await User.getById(req.username);
-    const vote = await user.downvote(post);
+    const post = await DetailedPost.getById(req.params.postId);
+    const user = await DetailedUser.getById(req.username);
+    await user.downvote(post);
     return res.json({
-      message: `User ${vote.username} has downvoted post ${vote.post_id}`,
+      message: `User ${user.username} has downvoted post ${post.id}`,
       post,
     });
   } catch (err) {

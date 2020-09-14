@@ -2,13 +2,13 @@ const TagDataAccess = require("../dataAccess/tag");
 const ExpressError = require("../helpers/expressError");
 
 class Tag {
-  constructor({ id, name, total_posts = 0 }) {
+  constructor({ id, name, totalPosts = 0 }) {
     this.id = id;
     this.name = name;
-    this.total_posts = Number(total_posts);
+    this.totalPosts = Number(totalPosts);
   }
   incrementTotalPosts(delta) {
-    this.total_posts += delta;
+    this.totalPosts += delta;
   }
   async remove() {
     await TagDataAccess.delete(this.id);
@@ -30,8 +30,8 @@ class Tag {
     const tagsData = await TagDataAccess.getAll({ name });
     return tagsData.map((tag) => new Tag(tag));
   }
-  static async getAllByPostId(post_id) {
-    const tagsData = await TagDataAccess.getAllByPostId(post_id);
+  static async getAllByPostId(postId) {
+    const tagsData = await TagDataAccess.getAllByPostId(postId);
     return tagsData.map((tag) => new Tag(tag));
   }
 }

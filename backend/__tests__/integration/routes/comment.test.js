@@ -46,8 +46,8 @@ describe("GET /posts/:postId/comments", function () {
     expect(response.statusCode).toEqual(200);
     expect(response.body.comments).toEqual(
       expect.arrayContaining([
-        { ...testComment, created_at: expect.any(String) },
-        { ...testComment2, created_at: expect.any(String) },
+        { ...testComment, createdAt: expect.any(String) },
+        { ...testComment2, createdAt: expect.any(String) },
       ])
     );
   });
@@ -56,12 +56,12 @@ describe("GET /posts/:postId/comments", function () {
 describe("GET /posts/:postId/comments/:commentId", function () {
   it("should return detailed information on a single comment", async function () {
     const response = await request(app).get(
-      `/posts/${testPost.id}/comments/${testComment.comment_id}`
+      `/posts/${testPost.id}/comments/${testComment.commentId}`
     );
     expect(response.statusCode).toEqual(200);
     expect(response.body.comment).toEqual({
       ...testComment,
-      created_at: expect.any(String),
+      createdAt: expect.any(String),
     });
   });
   it("should return a 404 if given an invalid commentId", async function () {
@@ -84,21 +84,21 @@ describe("POST /posts/:postId/comments", function () {
     expect(response.statusCode).toEqual(201);
     expect(response.body.comment).toEqual({
       ...newComment,
-      comment_id: expect.any(String),
-      post_id: testPost.id,
-      created_at: expect.any(String),
+      commentId: expect.any(String),
+      postId: testPost.id,
+      createdAt: expect.any(String),
       author: testUser.username,
     });
-    const commentId = response.body.comment.comment_id;
+    const commentId = response.body.comment.commentId;
     response = await request(app).get(
       `/posts/${testPost.id}/comments/${commentId}`
     );
     expect(response.statusCode).toEqual(200);
     expect(response.body.comment).toEqual({
       ...newComment,
-      comment_id: commentId,
-      post_id: testPost.id,
-      created_at: expect.any(String),
+      commentId: commentId,
+      postId: testPost.id,
+      createdAt: expect.any(String),
       author: testUser.username,
     });
     await request(app)
@@ -114,22 +114,22 @@ describe("PATCH /posts/:postId/comments/:commentId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}/comments/${testComment.comment_id}`)
+      .patch(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ ...updatedCommentInfo, _token: token });
     expect(response.statusCode).toEqual(200);
     expect(response.body.comment).toEqual({
       ...testComment,
       ...updatedCommentInfo,
-      created_at: expect.any(String),
+      createdAt: expect.any(String),
     });
     response = await request(app)
-      .get(`/posts/${testPost.id}/comments/${testComment.comment_id}`)
+      .get(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ _token: token });
     expect(response.statusCode).toEqual(200);
     expect(response.body.comment).toEqual({
       ...testComment,
       ...updatedCommentInfo,
-      created_at: expect.any(String),
+      createdAt: expect.any(String),
     });
   });
   it("should deny access if no token is present", async function () {
@@ -138,7 +138,7 @@ describe("PATCH /posts/:postId/comments/:commentId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}/comments/${testComment.comment_id}`)
+      .patch(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send(updatedCommentInfo);
     expect(response.statusCode).toEqual(403);
   });
@@ -148,7 +148,7 @@ describe("PATCH /posts/:postId/comments/:commentId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}/comments/${testComment.comment_id}`)
+      .patch(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ ...updatedCommentInfo, _token: badToken });
     expect(response.statusCode).toEqual(401);
   });
@@ -158,7 +158,7 @@ describe("PATCH /posts/:postId/comments/:commentId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}/comments/${testComment.comment_id}`)
+      .patch(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ ...updatedCommentInfo, _token: createToken(testUserW) });
     expect(response.statusCode).toEqual(403);
   });
@@ -167,25 +167,25 @@ describe("PATCH /posts/:postId/comments/:commentId", function () {
 describe("DELETE /posts/:postId/commments/:commentId", function () {
   it("should delete an existing comment", async function () {
     let response = await request(app)
-      .delete(`/posts/${testPost.id}/comments/${testComment.comment_id}`)
+      .delete(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ _token: token });
     expect(response.statusCode).toEqual(200);
   });
   it("should deny access if no token is present", async function () {
     let response = await request(app).delete(
-      `/posts/${testPost.id}/comments/${testComment.comment_id}`
+      `/posts/${testPost.id}/comments/${testComment.commentId}`
     );
     expect(response.statusCode).toEqual(403);
   });
   it("should deny access if malformed token is present", async function () {
     let response = await request(app)
-      .delete(`/posts/${testPost.id}/comments/${testComment.comment_id}`)
+      .delete(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ _token: badToken });
     expect(response.statusCode).toEqual(401);
   });
   it("should deny access if incorrect user", async function () {
     let response = await request(app)
-      .delete(`/posts/${testPost.id}/comments/${testComment.comment_id}`)
+      .delete(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ _token: createToken(testUserW) });
     expect(response.statusCode).toEqual(403);
   });

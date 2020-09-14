@@ -6,7 +6,7 @@ const request = require("supertest");
 const db = require("../../../db");
 const jwt = require("jsonwebtoken");
 const createToken = require("../../../helpers/createToken");
-const User = require("../../../models/user");
+const DetailedUser = require("../../../models/detailedUser");
 const Tag = require("../../../models/tag");
 
 let testUser;
@@ -17,11 +17,17 @@ let testPostZ;
 let token;
 let badToken = jwt.sign({ username: "routeT1" }, "invalid-key");
 beforeAll(async function () {
-  testUserZ = await User.create({ username: "routeTZ", password: "passwordZ" });
+  testUserZ = await DetailedUser.create({
+    username: "routeTZ",
+    password: "passwordZ",
+  });
   testPostZ = await testUserZ.createPost({ title: "ttz1", body: "btz1" });
 });
 beforeEach(async function () {
-  testUser = await User.create({ username: "routeT1", password: "password1" });
+  testUser = await DetailedUser.create({
+    username: "routeT1",
+    password: "password1",
+  });
   token = createToken(testUser);
   testPost = await testUser.createPost({ title: "tt1", body: "bt1" });
   testTag = await Tag.create("testing");
@@ -85,7 +91,7 @@ describe("POST /tags", function () {
       ...newTag,
 
       id: expect.any(String),
-      total_posts: 0,
+      totalPosts: 0,
     });
     const tagId = response.body.tag.id;
     response = await request(app).get(`/tags/${tagId}`);
@@ -94,7 +100,7 @@ describe("POST /tags", function () {
       ...newTag,
 
       id: tagId,
-      total_posts: 0,
+      totalPosts: 0,
     });
     await request(app).delete(`/tags/${tagId}`).send({ _token: token });
   });
@@ -124,11 +130,11 @@ describe("POST /posts/:postId/tags/:tagId", function () {
       `Tag ${testTag.name} added to post ${testPost.id}`
     );
     response = await request(app).get(`/tags/${testTag.id}`);
-    expect(response.body.tag.total_posts).toEqual(1);
+    expect(response.body.tag.totalPosts).toEqual(1);
 
     response = await request(app).get(`/posts/${testPost.id}`);
     expect(response.statusCode).toEqual(200);
-    expect(response.body.post.tags).toEqual([{ ...testTag, total_posts: 1 }]);
+    expect(response.body.post.tags).toEqual([{ ...testTag, totalPosts: 1 }]);
   });
   it("should should deny access if no token is present", async function () {
     let response = await request(app).post(
@@ -175,7 +181,7 @@ describe("DELETE /posts/:postId/tags/:tagId", function () {
       `Tag ${testTag.name} removed from post ${testPost.id}`
     );
     response = await request(app).get(`/tags/${testTag.id}`);
-    expect(response.body.tag.total_posts).toEqual(0);
+    expect(response.body.tag.totalPosts).toEqual(0);
 
     response = await request(app).get(`/posts/${testPost.id}`);
     expect(response.statusCode).toEqual(200);

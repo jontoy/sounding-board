@@ -3,8 +3,8 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "avatar_url": {
-      "$id": "/properties/avatar_url",
+    "avatarUrl": {
+      "$id": "/properties/avatarUrl",
       "type": "string",
       "title": "The Avatar URL Schema ",
       "examples": ["https://www.fakeurl.com"]
