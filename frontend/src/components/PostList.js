@@ -1,18 +1,23 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import PostCard from "./PostCard";
 
-const PostList = ({ posts }) => {
+const PostList = ({
+  posts,
+  likedPostIds = [],
+  dislikePostIds = [],
+  upvote,
+  downvote,
+}) => {
   return (
     <ul className="PostList list-unstyled">
-      {posts.map(({ id, title, author, createdAt, netVotes }) => (
-        <li key={id}>
+      {posts.map((post) => (
+        <li key={post.id}>
           <PostCard
-            id={id}
-            title={title}
-            author={author}
-            createdAt={createdAt}
-            netVotes={netVotes}
+            post={post}
+            liked={likedPostIds.includes(post.id)}
+            disliked={dislikePostIds.includes(post.id)}
+            upvote={upvote}
+            downvote={downvote}
           />
         </li>
       ))}

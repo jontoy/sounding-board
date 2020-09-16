@@ -1,0 +1,4 @@
+.VoteArea {
+  display: flex;
+  flex-direction: column;
+}

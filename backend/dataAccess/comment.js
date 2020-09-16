@@ -27,7 +27,7 @@ class Comment {
       baseQuery += " WHERE ";
     }
     const finalQuery =
-      baseQuery + whereExpressions.join(" AND ") + " ORDER BY created_at";
+      baseQuery + whereExpressions.join(" AND ") + " ORDER BY created_at DESC";
     const results = await db.query(finalQuery, queryValues);
     return results.rows.map(
       ({ comment_id, post_id, text, author, created_at }) => ({

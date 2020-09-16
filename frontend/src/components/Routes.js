@@ -19,9 +19,9 @@ const Routes = () => {
       <PrivateRoute exact path="/profile">
         <Profile />
       </PrivateRoute>
-      <Route exact path="/posts/new">
+      <PrivateRoute exact path="/posts/new">
         <NewPostForm />
-      </Route>
+      </PrivateRoute>
       <Route exact path="/posts/:postId">
         <Post />
       </Route>

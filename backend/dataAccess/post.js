@@ -30,7 +30,7 @@ class Post {
     const finalQuery =
       baseQuery +
       whereExpressions.join(" AND ") +
-      " GROUP BY p.id ORDER BY created_at";
+      " GROUP BY p.id ORDER BY created_at DESC";
     const results = await db.query(finalQuery, queryValues);
     return results.rows.map(
       ({ id, title, author, body, created_at, net_votes }) => ({

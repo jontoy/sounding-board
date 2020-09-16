@@ -8,7 +8,7 @@ const Navigation = ({ currentUser, logout }) => {
       <ul className="navbar-nav ml-auto">
         <li className="nav-item">
           <NavLink className="Navigation-link" to="/profile">
-            Profile
+            {currentUser.username}
           </NavLink>
         </li>
         <li className="nav-item">
@@ -34,7 +34,7 @@ const Navigation = ({ currentUser, logout }) => {
   return (
     <nav className="Navigation navbar-expand navbar navbar-dark bg-primary">
       <NavLink className="Navigation-link navbar-brand" to="/posts">
-        Posts
+        Sounding Board
       </NavLink>
       {currentUser ? loggedInNav() : loggedOutNav()}
     </nav>

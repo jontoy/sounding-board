@@ -1,13 +1,29 @@
 import React from "react";
 import Moment from "react-moment";
 import { Link } from "react-router-dom";
+import VoteArea from "./VoteArea";
+import "./PostCard.css";
 
-const PostCard = ({ id, title, author, body, createdAt, netVotes }) => {
+const PostCard = ({
+  post,
+  liked = false,
+  disliked = false,
+  upvote,
+  downvote,
+}) => {
+  const { id, title, author, createdAt, netVotes } = post;
   return (
-    <div className="CompanyCard card p-2 mb-1">
+    <div className="PostCard card p-2 mb-1">
       <div className="row no-gutters">
         <div className="col-1">
-          <section className="votes-area card-body">{netVotes}</section>
+          <VoteArea
+            id={id}
+            liked={liked}
+            disliked={disliked}
+            netVotes={netVotes}
+            upvote={upvote}
+            downvote={downvote}
+          />
         </div>
         <div className="col-11">
           <section className="card-body">

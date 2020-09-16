@@ -60,6 +60,10 @@ class SoundingBoardApi {
     let res = await this.request("posts", data, "post");
     return res.post;
   }
+  static async submitComment(postId, data) {
+    let res = await this.request(`posts/${postId}/comments`, data, "post");
+    return res.comment;
+  }
   static async getTag(id) {
     let res = await this.request(`tags/${id}`);
     return res.tag;
