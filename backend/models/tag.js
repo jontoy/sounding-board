@@ -26,8 +26,8 @@ class Tag {
     if (!tagData) throw new ExpressError(`No tag exists with id ${id}`, 404);
     return new Tag(tagData);
   }
-  static async getAll({ name }) {
-    const tagsData = await TagDataAccess.getAll({ name });
+  static async getAll({ name, sort }) {
+    const tagsData = await TagDataAccess.getAll({ name, sort });
     return tagsData.map((tag) => new Tag(tag));
   }
   static async getAllByPostId(postId) {

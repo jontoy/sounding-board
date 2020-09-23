@@ -1,0 +1,14 @@
+.Navigation-link {
+  color: white;
+  margin: 0 10px;
+}
+
+.Navigation-link.active {
+  font-weight: bold;
+  color: black;
+}
+
+#Navigation-brand {
+  font-family: "Fredericka the Great", cursive;
+  font-size: 1.5rem;
+}

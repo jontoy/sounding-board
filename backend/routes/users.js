@@ -38,9 +38,9 @@ router.get("/:username", requireLogin, async function (req, res, next) {
   }
 });
 
-/** PATCH /[username] {userData} => {user: updatedUser} */
+/** PUT /[username] {userData} => {user: updatedUser} */
 
-router.patch(
+router.put(
   "/:username",
   requireCorrectUser,
   requireProperSchema(userUpdateSchema),

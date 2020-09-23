@@ -34,7 +34,6 @@ class User {
 
   async upvote(post) {
     const voteData = await this.vote(post, 1);
-
     return voteData;
   }
   async downvote(post) {
@@ -81,6 +80,10 @@ class User {
   static async getAll({ username }) {
     const usersData = await UserDataAccess.getAll({ username });
     return usersData.map((user) => new User(user));
+  }
+  static async countTotal() {
+    const totalUsers = await UserDataAccess.countTotal();
+    return totalUsers;
   }
 }
 

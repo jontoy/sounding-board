@@ -20,9 +20,18 @@ class Post {
     const postData = await PostDataAccess.create({ title, author, body });
     return new Post(postData);
   }
-  static async getAll({ title, author }) {
-    const postsData = await PostDataAccess.getAll({ title, author });
+  static async getAll({ title, author, tagId, sort }) {
+    const postsData = await PostDataAccess.getAll({
+      title,
+      author,
+      tagId,
+      sort,
+    });
     return postsData.map((post) => new Post(post));
+  }
+  static async countTotal() {
+    const totalPosts = await PostDataAccess.countTotal();
+    return totalPosts;
   }
 }
 

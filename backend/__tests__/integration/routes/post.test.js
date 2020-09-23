@@ -57,7 +57,7 @@ describe("GET /posts", function () {
     );
     expect(response.statusCode).toEqual(200);
     expect(response.body.posts).toEqual(
-      [testPostY, testPost2, testPost3].map(
+      [testPost3, testPost2, testPostY].map(
         ({ author, body, createdAt, id, netVotes, title }) => ({
           author,
           body,
@@ -194,7 +194,7 @@ describe("POST /posts/:postId/upvote", function () {
   });
 });
 
-describe("PATCH /posts/:postId", function () {
+describe("PUT /posts/:postId", function () {
   it("should modify an existing post", async function () {
     const updatedPostInfo = {
       title: "updated title",
@@ -202,7 +202,7 @@ describe("PATCH /posts/:postId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}`)
+      .put(`/posts/${testPost.id}`)
       .send({ ...updatedPostInfo, _token: token });
     expect(response.statusCode).toEqual(200);
     expect(response.body.post).toEqual({
@@ -237,7 +237,7 @@ describe("PATCH /posts/:postId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}`)
+      .put(`/posts/${testPost.id}`)
       .send(updatedPostInfo);
     expect(response.statusCode).toEqual(403);
   });
@@ -247,7 +247,7 @@ describe("PATCH /posts/:postId", function () {
       body: "updated body",
     };
     let response = await request(app)
-      .patch(`/posts/${testPost.id}`)
+      .put(`/posts/${testPost.id}`)
       .send({ ...updatedPostInfo, _token: badToken });
     expect(response.statusCode).toEqual(401);
   });
@@ -257,7 +257,7 @@ describe("PATCH /posts/:postId", function () {
       body: "updated body",
     };
     let response = await request(app)
-      .patch(`/posts/${testPost.id}`)
+      .put(`/posts/${testPost.id}`)
       .send({ ...updatedPostInfo, _token: createToken(testUserY) });
     expect(response.statusCode).toEqual(403);
   });

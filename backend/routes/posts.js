@@ -30,8 +30,8 @@ const { validateOwnership } = require("../helpers/validateOwnership");
 
 router.get("/", async function (req, res, next) {
   try {
-    const { title, author } = req.query;
-    const posts = await Post.getAll({ title, author });
+    const { title, author, tagId, sort } = req.query;
+    const posts = await Post.getAll({ title, author, tagId, sort });
     return res.json({ posts });
   } catch (err) {
     return next(err);
@@ -66,9 +66,9 @@ router.get("/:postId", async function (req, res, next) {
   }
 });
 
-/** PATCH /[postId] {postData} => {post: updatedPost} */
+/** PUT /[postId] {postData} => {post: updatedPost} */
 
-router.patch(
+router.put(
   "/:postId",
   requireLogin,
   requireProperSchema(postUpdateSchema),
@@ -146,9 +146,9 @@ router.get("/:postId/comments/:commentId", async function (req, res, next) {
   }
 });
 
-/** PATCH /[postId]/comments/[commentId] {text} => {comment: updatedComment} */
+/** PUT /[postId]/comments/[commentId] {text} => {comment: updatedComment} */
 
-router.patch(
+router.put(
   "/:postId/comments/:commentId",
   requireLogin,
   requireProperSchema(commentSchema),
@@ -195,7 +195,9 @@ router.post("/:postId/tags/:tagId", requireLogin, async function (
     validateOwnership(post.author, req);
     const tag = await Tag.getById(req.params.tagId);
     await post.addTag(tag);
-    return res.json({ message: `Tag ${tag.name} added to post ${post.id}` });
+    return res.json({
+      post,
+    });
   } catch (err) {
     return next(err);
   }
@@ -213,7 +215,7 @@ router.delete("/:postId/tags/:tagId", requireLogin, async function (
     const tag = await Tag.getById(req.params.tagId);
     await post.removeTag(tag);
     return res.json({
-      message: `Tag ${tag.name} removed from post ${post.id}`,
+      post,
     });
   } catch (err) {
     return next(err);
@@ -230,6 +232,7 @@ router.post("/:postId/upvote", requireLogin, async function (req, res, next) {
     await user.upvote(post);
     return res.json({
       message: `User ${user.username} has upvoted post ${post.id}`,
+      user,
       post,
     });
   } catch (err) {
@@ -245,6 +248,7 @@ router.post("/:postId/downvote", requireLogin, async function (req, res, next) {
     await user.downvote(post);
     return res.json({
       message: `User ${user.username} has downvoted post ${post.id}`,
+      user,
       post,
     });
   } catch (err) {

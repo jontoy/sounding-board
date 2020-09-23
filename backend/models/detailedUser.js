@@ -36,6 +36,7 @@ class DetailedUser extends User {
       );
       post.incrementNetVotes(1);
     }
+    this.updateAuthoredPost(post);
   }
   addDislikedPostId(post) {
     if (!this.dislikedPostIds.includes(post.id)) {
@@ -46,6 +47,12 @@ class DetailedUser extends User {
       this.likedPostIds = this.likedPostIds.filter((id) => id !== post.id);
       post.incrementNetVotes(-1);
     }
+    this.updateAuthoredPost(post);
+  }
+  updateAuthoredPost(post) {
+    this.authoredPosts = this.authoredPosts.map((oldPost) =>
+      oldPost.id === post.id ? post : oldPost
+    );
   }
   async upvote(post) {
     const voteData = await super.upvote(post);
