@@ -43,6 +43,10 @@ class Comment {
     });
     return commentsData.map((comment) => new Comment(comment));
   }
+  static async countTotal() {
+    const totalComments = await CommentDataAccess.countTotal();
+    return totalComments;
+  }
 }
 
 module.exports = Comment;

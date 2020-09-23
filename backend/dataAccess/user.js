@@ -29,6 +29,10 @@ class User {
       bio,
     }));
   }
+  static async countTotal() {
+    const result = await db.query("SELECT COUNT(*) as total FROM users");
+    return result.rows[0].total;
+  }
 
   /** Creates a user and returns full user info: {username, avatar_url, member_since, bio} **/
   static async create({

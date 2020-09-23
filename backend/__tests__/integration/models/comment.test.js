@@ -4,6 +4,7 @@ process.env.BCRYPT_WORK_FACTOR = 1;
 const db = require("../../../db");
 const DetailedUser = require("../../../models/detailedUser");
 const Comment = require("../../../models/comment");
+const Tag = require("../../../dataAccess/tag");
 
 let testUser1;
 let testUser2;

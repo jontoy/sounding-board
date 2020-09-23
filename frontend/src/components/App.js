@@ -30,6 +30,20 @@ function App() {
     setCurrentUser(null);
     setToken("");
   };
+  const upvotePost = async (postId) => {
+    if (currentUser && !currentUser.likedPostIds.includes(postId)) {
+      const res = await SoundingBoardApi.upvotePost(postId);
+      setCurrentUser(res.user);
+      return res.post;
+    }
+  };
+  const downvotePost = async (postId) => {
+    if (currentUser && !currentUser.dislikedPostIds.includes(postId)) {
+      const res = await SoundingBoardApi.downvotePost(postId);
+      setCurrentUser(res.user);
+      return res.post;
+    }
+  };
   if (isLoading) {
     return <div>Loading your data</div>;
   }
@@ -39,13 +53,15 @@ function App() {
       value={{
         currentUser,
         setCurrentUser,
+        upvotePost,
+        downvotePost,
         setToken,
       }}
     >
       <div className="App bg-light">
         <Navigation currentUser={currentUser} logout={logout} />
         <div className="App-content row">
-          <div className="col">
+          <div className="col border-right">
             <Routes />
           </div>
           <div className="col-3">

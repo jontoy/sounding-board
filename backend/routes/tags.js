@@ -16,8 +16,8 @@ const { tagSchema } = require("../schemas");
 
 router.get("/", async function (req, res, next) {
   try {
-    const { name } = req.query;
-    const tags = await Tag.getAll({ name });
+    const { name, sort } = req.query;
+    const tags = await Tag.getAll({ name, sort });
     return res.json({ tags });
   } catch (err) {
     return next(err);

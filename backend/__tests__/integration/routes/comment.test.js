@@ -107,14 +107,14 @@ describe("POST /posts/:postId/comments", function () {
   });
 });
 
-describe("PATCH /posts/:postId/comments/:commentId", function () {
+describe("PUT /posts/:postId/comments/:commentId", function () {
   it("should modify an existing comment", async function () {
     const updatedCommentInfo = {
       text: "updated text",
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}/comments/${testComment.commentId}`)
+      .put(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ ...updatedCommentInfo, _token: token });
     expect(response.statusCode).toEqual(200);
     expect(response.body.comment).toEqual({
@@ -138,7 +138,7 @@ describe("PATCH /posts/:postId/comments/:commentId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}/comments/${testComment.commentId}`)
+      .put(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send(updatedCommentInfo);
     expect(response.statusCode).toEqual(403);
   });
@@ -148,7 +148,7 @@ describe("PATCH /posts/:postId/comments/:commentId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}/comments/${testComment.commentId}`)
+      .put(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ ...updatedCommentInfo, _token: badToken });
     expect(response.statusCode).toEqual(401);
   });
@@ -158,7 +158,7 @@ describe("PATCH /posts/:postId/comments/:commentId", function () {
     };
 
     let response = await request(app)
-      .patch(`/posts/${testPost.id}/comments/${testComment.commentId}`)
+      .put(`/posts/${testPost.id}/comments/${testComment.commentId}`)
       .send({ ...updatedCommentInfo, _token: createToken(testUserW) });
     expect(response.statusCode).toEqual(403);
   });

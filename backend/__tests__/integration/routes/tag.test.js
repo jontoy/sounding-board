@@ -126,9 +126,6 @@ describe("POST /posts/:postId/tags/:tagId", function () {
       .post(`/posts/${testPost.id}/tags/${testTag.id}/`)
       .send({ _token: token });
     expect(response.statusCode).toEqual(200);
-    expect(response.body.message).toEqual(
-      `Tag ${testTag.name} added to post ${testPost.id}`
-    );
     response = await request(app).get(`/tags/${testTag.id}`);
     expect(response.body.tag.totalPosts).toEqual(1);
 
@@ -177,9 +174,6 @@ describe("DELETE /posts/:postId/tags/:tagId", function () {
       .delete(`/posts/${testPost.id}/tags/${testTag.id}/`)
       .send({ _token: token });
     expect(response.statusCode).toEqual(200);
-    expect(response.body.message).toEqual(
-      `Tag ${testTag.name} removed from post ${testPost.id}`
-    );
     response = await request(app).get(`/tags/${testTag.id}`);
     expect(response.body.tag.totalPosts).toEqual(0);
 

@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import CommentCard from "./CommentCard";
+import UserContext from "../userContext";
 
-const CommentList = ({ comments = [] }) => {
+const CommentList = ({ comments = [], deleteComment }) => {
+  const { currentUser } = useContext(UserContext);
+
   return (
     <>
       <h5>all {comments.length} comments</h5>
@@ -14,6 +17,8 @@ const CommentList = ({ comments = [] }) => {
               author={author}
               text={text}
               createdAt={createdAt}
+              isOwner={currentUser && currentUser.username === author}
+              deleteComment={deleteComment}
             />
           </li>
         ))}

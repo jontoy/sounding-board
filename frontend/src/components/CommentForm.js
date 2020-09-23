@@ -14,7 +14,7 @@ const CommentForm = ({ submitComment, isActive }) => {
     }
   };
   return (
-    <form className="CommentForm mb-2" onSubmit={handleSubmit}>
+    <form className="CommentForm w-75 mb-2" onSubmit={handleSubmit}>
       {text}
       <fieldset disabled={!isActive}>
         <div className="form-group mb-0">

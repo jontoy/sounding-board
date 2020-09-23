@@ -11,9 +11,13 @@ class Post {
    * Optionally allows filtering by title
    * Results are sorted by created_at
    * */
-  static async getAll({ title, author }) {
-    let baseQuery = `SELECT p.id, p.title, p.author, p.body, p.created_at, SUM(v.value) as net_votes 
-                      FROM posts p LEFT JOIN votes v ON v.post_id = p.id`;
+  static async getAll({ title, author, tagId, sort }) {
+    let baseQuery = `SELECT p.id, p.title, p.author, p.body, p.created_at, 
+                          SUM(v.value) as net_votes, 
+                          SUM(v.value)/ (EXTRACT(epoch FROM CURRENT_TIMESTAMP) - EXTRACT(epoch FROM created_at)) as votes_per_second 
+                      FROM posts p 
+                      LEFT JOIN votes v ON v.post_id = p.id
+                      `;
     const whereExpressions = [];
     const queryValues = [];
     if (title && title.length > 0) {
@@ -24,13 +28,28 @@ class Post {
       queryValues.push(author);
       whereExpressions.push(`p.author = $${queryValues.length}`);
     }
+    if (tagId && tagId.length > 0) {
+      queryValues.push(tagId);
+      whereExpressions.push(
+        `p.id IN (SELECT post_id FROM posttags WHERE tag_id = $${queryValues.length})`
+      );
+    }
+    // MAKE SUBQUERY HERE^^^^^^
     if (whereExpressions.length > 0) {
       baseQuery += " WHERE ";
+    }
+    let sortCriteria;
+    if (sort === "top") {
+      sortCriteria = "net_votes";
+    } else if (sort === "rising") {
+      sortCriteria = "votes_per_second";
+    } else {
+      sortCriteria = "created_at";
     }
     const finalQuery =
       baseQuery +
       whereExpressions.join(" AND ") +
-      " GROUP BY p.id ORDER BY created_at DESC";
+      ` GROUP BY p.id ORDER BY ${sortCriteria} DESC`;
     const results = await db.query(finalQuery, queryValues);
     return results.rows.map(
       ({ id, title, author, body, created_at, net_votes }) => ({
@@ -42,6 +61,11 @@ class Post {
         netVotes: net_votes,
       })
     );
+  }
+
+  static async countTotal() {
+    const result = await db.query("SELECT COUNT(*) as total FROM posts");
+    return result.rows[0].total;
   }
 
   /** Creates a post and returns full post info: {id, title, author, body, created_at} **/

@@ -8,7 +8,7 @@ class Tag {
    *
    * Optionally allows filtering by name, post_id
    * */
-  static async getAll({ name }) {
+  static async getAll({ name, sort }) {
     let baseQuery = `SELECT t.id, t.name, count(pt.tag_id) as total_posts FROM tags t
                       LEFT JOIN posttags pt ON pt.tag_id = t.id`;
     const whereExpressions = [];
@@ -23,7 +23,9 @@ class Tag {
     const finalQuery =
       baseQuery +
       whereExpressions.join(" AND ") +
-      " GROUP BY t.id ORDER BY name";
+      ` GROUP BY t.id ORDER BY ${
+        sort === "popularity" ? "total_posts DESC, name ASC" : "name ASC"
+      }`;
     const results = await db.query(finalQuery, queryValues);
     return results.rows.map(({ id, name, total_posts }) => ({
       id,

@@ -39,7 +39,10 @@ class Comment {
       })
     );
   }
-
+  static async countTotal() {
+    const result = await db.query("SELECT COUNT(*) as total FROM comments");
+    return result.rows[0].total;
+  }
   /** Creates a comment and returns full comment info:
    * {comment_id, post_id, text, author, created_at} **/
   static async create({ postId, text, author }) {

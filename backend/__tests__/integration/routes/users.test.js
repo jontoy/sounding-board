@@ -199,7 +199,7 @@ describe("POST /login", function () {
   });
 });
 
-describe("PATCH /users/:username", function () {
+describe("PUT /users/:username", function () {
   it("should modify an existing user", async function () {
     const updatedUserInfo = {
       bio: "updated bio",
@@ -207,7 +207,7 @@ describe("PATCH /users/:username", function () {
     };
 
     let response = await request(app)
-      .patch(`/users/${testUser.username}`)
+      .put(`/users/${testUser.username}`)
       .send({ ...updatedUserInfo, _token: token });
     expect(response.statusCode).toEqual(200);
     expect(response.body.user).toEqual({
@@ -257,7 +257,7 @@ describe("PATCH /users/:username", function () {
       avatarUrl: "www.fakeurl.com",
     };
     let response = await request(app)
-      .patch(`/users/${testUser.username}`)
+      .put(`/users/${testUser.username}`)
       .send({ updatedUserInfo });
     expect(response.statusCode).toEqual(403);
   });
@@ -267,7 +267,7 @@ describe("PATCH /users/:username", function () {
       avatarUrl: "www.fakeurl.com",
     };
     let response = await request(app)
-      .patch(`/users/${testUser.username}`)
+      .put(`/users/${testUser.username}`)
       .send({ ...updatedUserInfo, _token: badToken });
     expect(response.statusCode).toEqual(401);
   });
@@ -277,7 +277,7 @@ describe("PATCH /users/:username", function () {
       avatarUrl: "www.fakeurl.com",
     };
     let response = await request(app)
-      .patch(`/users/routeUX`)
+      .put(`/users/routeUX`)
       .send({ ...updatedUserInfo, _token: token });
     expect(response.statusCode).toEqual(403);
   });

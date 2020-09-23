@@ -1,0 +1,8 @@
+.Tags-list {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  max-height: 250px;
+}
+.TagsCard {
+}

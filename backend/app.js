@@ -11,6 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "*");
   next();
 });
 app.use(morgan("tiny"));
@@ -20,10 +21,12 @@ const usersRoutes = require("./routes/users");
 const postsRoutes = require("./routes/posts");
 const tagRoutes = require("./routes/tags");
 const authRoutes = require("./routes/auth");
+const statsRoutes = require("./routes/stats");
 
 app.use("/users", usersRoutes);
 app.use("/posts", postsRoutes);
 app.use("/tags", tagRoutes);
+app.use("/stats", statsRoutes);
 app.use("/", authRoutes);
 
 app.get("/", (req, res, next) => {
