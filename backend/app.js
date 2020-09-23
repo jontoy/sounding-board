@@ -7,13 +7,14 @@ const { VERBOSE_ERRORS } = require("./config");
 const morgan = require("morgan");
 const { authUser } = require("./middleware/auth");
 const app = express();
+const cors = require("cors");
 
+const corsOptions = {
+  origin: "https://sounding-board-frontend.herokuapp.com",
+  optionsSuccessStatus: 200,
+};
 app.use(express.json());
-app.use(function (req, res, next) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "*");
-  next();
-});
+app.use(cors(corsOptions));
 app.use(morgan("tiny"));
 app.use(authUser);
 

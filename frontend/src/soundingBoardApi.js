@@ -1,9 +1,5 @@
 import axios from "axios";
-import config from "./config";
-const DATABASE_URL =
-  process.env.REACT_APP_BASE_URL ||
-  config.DATABASE_URL ||
-  "http://localhost:3001";
+const DATABASE_URL = process.env.REACT_APP_BASE_URL || "http://localhost:3001";
 
 class SoundingBoardApi {
   static async request(endpoint, paramsOrData = {}, verb = "get") {
