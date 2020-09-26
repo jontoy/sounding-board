@@ -53,8 +53,8 @@ const Tag = () => {
       <h4 className="ml-3">Tagged Ideas ({tag.totalPosts})</h4>
       <PostList
         posts={posts}
-        likedPostIds={currentUser.likedPostIds}
-        dislikePostIds={currentUser.dislikedPostIds}
+        likedPostIds={currentUser ? currentUser.likedPostIds : []}
+        dislikePostIds={currentUser ? currentUser.dislikedPostIds : []}
         upvote={upvote}
         downvote={downvote}
       />
